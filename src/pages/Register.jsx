@@ -1,7 +1,48 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import logoImage from "../assets/images/lws-logo-light.svg";
+import Error from "../components/ui/Error";
+import { useUserRegisterMutation } from "../features/auth/authApi";
 
 export default function Register() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [profilePic, setProfilePic] = useState(null);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [userRegister, { isLoading, isSuccess, isError, error: resError }] =
+    useUserRegisterMutation();
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && isSuccess) {
+      return navigate("/");
+    }
+    if (resError?.error) {
+      console.log(isError);
+      setError(resError.error);
+    }
+  }, [isLoading, isSuccess, resError, navigate, isError]);
+
+  //handle register
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError("");
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("profilePic", profilePic);
+    formData.append("password", password);
+    console.log(formData);
+    if (password !== confirmPassword) {
+      return setError("Password does't Match!");
+    } else {
+      userRegister(formData);
+    }
+  };
+
   return (
     <div className="grid place-items-center h-screen bg-[#F9FAFB">
       <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -18,8 +59,11 @@ export default function Register() {
               Create your account
             </h2>
           </div>
-          <form className="mt-8 space-y-6" action="#" method="POST">
-            <input type="hidden" name="remember" value="true" />
+          <form
+            className="mt-8 space-y-6"
+            onSubmit={handleSubmit}
+            encType="multipart/form-data"
+          >
             <div className="rounded-md shadow-sm -space-y-px">
               <div>
                 <label htmlFor="name" className="sr-only">
@@ -27,12 +71,14 @@ export default function Register() {
                 </label>
                 <input
                   id="name"
-                  name="Name"
-                  type="Name"
-                  autoComplete="Name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
                   placeholder="Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                 />
               </div>
 
@@ -48,6 +94,8 @@ export default function Register() {
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
                   placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div>
@@ -58,9 +106,8 @@ export default function Register() {
                   id="profilePic"
                   name="profilePic"
                   type="file"
-                  autoComplete="email"
-                  required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
+                  onChange={(e) => setProfilePic(e.target.files[0])}
                 />
               </div>
 
@@ -76,6 +123,8 @@ export default function Register() {
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
                   placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
 
@@ -86,11 +135,13 @@ export default function Register() {
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="confirmPassword"
+                  type="password"
                   autoComplete="current-confirmPassword"
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
                   placeholder="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
             </div>
@@ -114,6 +165,7 @@ export default function Register() {
 
             <div>
               <button
+                disabled={isLoading}
                 type="submit"
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500"
               >
@@ -122,6 +174,7 @@ export default function Register() {
               </button>
             </div>
           </form>
+          {error !== "" && <Error message={error} />}
         </div>
       </div>
     </div>
