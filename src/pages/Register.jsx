@@ -21,7 +21,6 @@ export default function Register() {
       return navigate("/");
     }
     if (resError?.error) {
-      console.log(isError);
       setError(resError.error);
     }
   }, [isLoading, isSuccess, resError, navigate, isError]);
@@ -35,7 +34,6 @@ export default function Register() {
     formData.append("email", email);
     formData.append("profilePic", profilePic);
     formData.append("password", password);
-    console.log(formData);
     if (password !== confirmPassword) {
       return setError("Password does't Match!");
     } else {
