@@ -11,7 +11,7 @@ export default function Login() {
 
   const navigate = useNavigate();
 
-  const [userLogin, { isLoading, isSuccess, isError, error: resError }] =
+  const [userLogin, { isLoading, isSuccess,  error: resError }] =
     useUserLoginMutation();
 
   useEffect(() => {
